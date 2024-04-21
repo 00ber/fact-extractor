@@ -1,0 +1,15 @@
+FROM node:18.19-alpine3.18
+
+WORKDIR /app
+
+COPY package.json ./
+
+COPY package-lock.json ./
+
+RUN npm update && npm ci
+
+RUN npm install -g @angular/cli
+
+COPY . .
+
+CMD ["ng", "serve", "--host", "0.0.0.0"]
