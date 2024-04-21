@@ -93,6 +93,7 @@ def get_fact_extraction_chain():
 
 async def get_facts(question, document_urls):
     current_facts = []
+    logger.info(document_urls)
     for i, document_url in enumerate(document_urls):
         fact_extraction_chain = get_fact_extraction_chain()
         inputs = { "question": question, "document_url": document_url, "current_facts": current_facts }
@@ -102,5 +103,4 @@ async def get_facts(question, document_urls):
         logger.info(f"Inputs: {inputs}")
         logger.info(f"Updated Facts: {current_facts}")
         logger.info("-" * 80)
-
     return {"question": question, "facts": current_facts}

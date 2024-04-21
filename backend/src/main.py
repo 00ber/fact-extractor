@@ -1,14 +1,14 @@
 from typing import List
 import asyncio
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uuid
 # from chain_v1 import get_facts
 from chain_v2 import get_facts
 from logger import logger
-from jobs import jobs
 
+jobs = {}
 
 class RequestPayload(BaseModel):
     question: str
@@ -44,17 +44,15 @@ async def status(identifier):
 
 @app.post("/submit_question_and_documents")
 async def submit_question_and_documents_static(payload: RequestPayload):
-    global jobs
     request_id = "44fefa65-8c54-4d37-92ef-314bfc977776"
     # request_id = str(uuid.uuid4())
     logger.info(request_id)
     jobs[request_id] = {
         "question": payload.question,
-        "facts": None,
+        "facts": [],
         "status": "processing"
     }
-
-    asyncio.run_coroutine_threadsafe(process_request(request_id, payload), loop=asyncio.get_running_loop())
+    asyncio.create_task(process_request(request_id, payload))
 
     return {"request_id": request_id}
 
@@ -63,31 +61,6 @@ async def get_question_and_facts_static():
     request_id = "44fefa65-8c54-4d37-92ef-314bfc977776"
     logger.info(jobs[request_id]["status"])
     return jobs[request_id]
-
-
-@app.post("/submit_question_and_documents")
-async def submit_question_and_documents_dynamic(payload: RequestPayload):
-    global jobs
-    request_id = str(uuid.uuid4())
-    logger.info(request_id)
-    jobs[request_id] = {
-        "question": payload.question,
-        "facts": None,
-        "status": "processing"
-    }
-
-    asyncio.run_coroutine_threadsafe(process_request(request_id, payload), loop=asyncio.get_running_loop())
-
-    return {"request_id": request_id}
-
-@app.get("/get_question_and_facts/:id")
-async def get_question_and_facts_by_id(request_id):
-    global jobs
-    logger.info("###########################")
-    logger.info(request_id)
-    logger.info(jobs[request_id]["status"])
-    return jobs[request_id]
-
 
 @app.get("/test")
 async def test():

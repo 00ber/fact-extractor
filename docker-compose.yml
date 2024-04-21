@@ -30,7 +30,7 @@ services:
         max-size: "10m"
   llm-log-parser-frontend:
     image: llm-log-parser-frontend:latest
-    command: ng serve --host 0.0.0.0 --configuration development
+    command: npm run start:dev
     ports:
       - "4200:4200"
     volumes:

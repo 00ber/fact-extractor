@@ -4,7 +4,12 @@ import { OnInit } from '@angular/core';
 import { initFlowbite } from 'flowbite';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
+import { NgIconComponent, provideIcons } from '@ng-icons/core';
+import { faEnvelope } from '@ng-icons/font-awesome/regular'
+import { faBrandGithub, faBrandLinkedin } from '@ng-icons/font-awesome/brands'
+
 import { ApiService } from './api.service';
+import { environment } from '../environments/environment';
 
 interface URLField {
   index: number;
@@ -14,27 +19,29 @@ interface URLField {
 @Component({
   selector: 'app-root',
   standalone: true,
-  providers: [ApiService],
-  imports: [RouterOutlet, CommonModule, HttpClientModule],
+  providers: [ApiService, provideIcons({ faBrandGithub, faBrandLinkedin, faEnvelope })],
+  imports: [
+    RouterOutlet, 
+    CommonModule, 
+    HttpClientModule, 
+    NgIconComponent
+  ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit {
   title = 'frontend';
 
-  question: string = "What are our product design decisions?";
-  documentUrlsValue: string = `http://test-fileserver:8081/call_log_gfsfdfd.txt
-http://test-fileserver:8081/call_log_fdadweq.txt
-http://test-fileserver:8081/call_log_sdfqwer.txt
-  `
+  question: string = '';
+  documentUrlsValue: string = '';
 
   loading = false;
   facts: string[] = [];
 
-  constructor(private apiService: ApiService) {}
+  constructor(private apiService: ApiService) { }
 
   getDocumentUrls() {
-    return this.documentUrlsValue.split("\n").filter(s => !!s);
+    return this.documentUrlsValue.split('\n').filter(s => !!s.trim());
   }
 
   ngOnInit(): void {
@@ -54,12 +61,22 @@ http://test-fileserver:8081/call_log_sdfqwer.txt
     this.loading = true;
     const documentUrls = this.getDocumentUrls();
     if (!this.question || documentUrls.length === 0) {
+      this.loading = false;
       return;
     }
-    this.apiService.extractFactsAndPollForResults(this.question, documentUrls).subscribe(data => {
-        console.log(data)
-        this.facts = data.facts;
+    this.apiService.extractFactsAndPollForResults(this.question, documentUrls).subscribe(res => {
+      console.log(res)
+      if (res.status === 'done') {
+        this.facts = res.facts;
         this.loading = false;
-    })
+      }
+    });
+  }
+
+  loadExample() {
+    this.facts = [];
+    this.question = 'What are our product design decisions?';
+    const exampleFiles = ['call_log_gfsfdfd.txt', 'call_log_fdadweq.txt', 'call_log_sdfqwer.txt'];
+    this. documentUrlsValue = exampleFiles.map(f => `${environment.exampleServerUrl}/${f}`).join('\n')
   }
 }

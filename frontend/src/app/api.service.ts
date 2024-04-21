@@ -10,7 +10,7 @@ interface GetFactsResponse {
 }
 
 interface ExtractFactsResponse {
-  requestId: string;
+  request_id: string;
 }
 
 @Injectable({
@@ -32,37 +32,15 @@ export class ApiService {
     return this.http.get<GetFactsResponse>(`${environment.apiUrl}/get_question_and_facts`)
   }
 
-  public getFactsById(requestId: string): Observable<GetFactsResponse> {
-    return this.http.get<GetFactsResponse>(`${environment.apiUrl}/get_question_and_facts/${requestId}`)
-  }
-
   public extractFactsAndPollForResults(question: string, documentUrls: string[]): Observable<GetFactsResponse> {
-    // return this.extractFacts(question, documentUrls).pipe(
-    //   switchMap(
-    //     (results) => this.getFactsById(results.requestId).pipe(
-    //         repeat({ delay: 3000 }),
-    //         takeWhile((response) => response.status === "processing", true)
-    //       )
-    //     )
-    // )
-    // return this.extractFacts(question, documentUrls).pipe(
-    //   switchMap((response: ExtractFactsResponse) => 
-    //     interval(1000).pipe(
-    //       startWith(0),
-    //       switchMap(() => this.getFacts()),
-    //       takeUntil(this.getFactsById(response.requestId).pipe(
-    //         filter((factResponse: GetFactsResponse) => factResponse.status === "done")
-    //       ))
-    //     )
-    //   )
-    // );
-
-    const init$ = this.extractFacts(question, documentUrls).pipe(shareReplay());
-    const poll$ = timer(0, 3000).pipe(
-      withLatestFrom(init$),
+    const submitJob = this.extractFacts(question, documentUrls).pipe(shareReplay());
+    const pollForJobCompletion = timer(0, 1000).pipe(
+      withLatestFrom(submitJob),
       switchMap(([ _, res ]) => this.getFacts()),
       takeWhile(val => val.status != "done", true)
     );
-    return poll$;
+    return pollForJobCompletion;
   }
+    
+
 }

@@ -10,4 +10,4 @@ RUN npm update && npm install -g @angular/cli && npm ci
 
 COPY . .
 
-CMD ["ng", "serve", "--host", "0.0.0.0"]
+CMD ["npm", "run", "start:prod"]
