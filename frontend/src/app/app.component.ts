@@ -37,9 +37,13 @@ export class AppComponent implements OnInit {
 
   loading = false;
   facts: string[] = [];
+  errors: string[] = [];
 
   constructor(private apiService: ApiService) { }
 
+  get hasErrors() {
+    return this.errors.length > 0;
+  }
   getDocumentUrls() {
     return this.documentUrlsValue.split('\n').filter(s => !!s.trim());
   }
@@ -59,6 +63,7 @@ export class AppComponent implements OnInit {
 
   extractFacts() {
     this.loading = true;
+    this.errors = [];
     const documentUrls = this.getDocumentUrls();
     if (!this.question || documentUrls.length === 0) {
       this.loading = false;
@@ -68,6 +73,7 @@ export class AppComponent implements OnInit {
       console.log(res)
       if (res.status === 'done') {
         this.facts = res.facts;
+        this.errors = res.errors;
         this.loading = false;
       }
     });

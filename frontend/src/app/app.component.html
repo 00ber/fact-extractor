@@ -1,4 +1,4 @@
-<div class="flex flex-col bg-steelblue-50 text-steelblue-950 h-full min-h-screen justify-stretch">
+<div class="flex flex-col bg-steelblue-50 text-steelblue-950 h-full min-h-screen justify-stretch font-montseratt">
   <header class="bg-steelblue-950 text-steelblue-50 font-silkscreen text-sm lg:text-4xl py-6 text-center">LLM Fact Extractor</header>
   <div class="flex flex-col justify-start min-h-screen">
     <div class="m-6">
@@ -52,6 +52,15 @@
             </div>
           </ng-container>
         </div> 
+        <h3 *ngIf="hasErrors" class="mt-6 font-montseratt font-semibold text-2xl">Errors: </h3>
+        <div *ngIf="hasErrors" class="flex flex-col p-4 mt-3 text-sm text-red-800 border border-red-300 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400 dark:border-red-800" role="alert">
+          <div *ngFor="let error of errors;">
+            <span class="sr-only">Info</span>
+            <div>
+              <span class="font-normal"><strong>・</strong>{{ error }}</span> 
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

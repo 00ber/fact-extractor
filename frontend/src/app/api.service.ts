@@ -6,6 +6,7 @@ import { environment } from '../environments/environment';
 interface GetFactsResponse {
   question: string;
   facts: string[];
+  errors: string[];
   status: "processing" | "done";
 }
 
@@ -36,7 +37,7 @@ export class ApiService {
     const submitJob = this.extractFacts(question, documentUrls).pipe(shareReplay());
     const pollForJobCompletion = timer(0, 1000).pipe(
       withLatestFrom(submitJob),
-      switchMap(([ _, res ]) => this.getFacts()),
+      switchMap(([ _, _res ]) => this.getFacts()),
       takeWhile(val => val.status != "done", true)
     );
     return pollForJobCompletion;

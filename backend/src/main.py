@@ -27,6 +27,7 @@ async def process_request(job_identifier, payload: RequestPayload):
     job_info = jobs[job_identifier]
     results = await get_facts(payload.question, payload.documents)
     job_info["facts"] = results["facts"]
+    job_info["errors"] = results["errors"]
     job_info['status'] = 'done'
     return
 
@@ -50,6 +51,7 @@ async def submit_question_and_documents_static(payload: RequestPayload):
     jobs[request_id] = {
         "question": payload.question,
         "facts": [],
+        "errors": [],
         "status": "processing"
     }
     asyncio.create_task(process_request(request_id, payload))

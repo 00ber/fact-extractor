@@ -68,22 +68,28 @@ def generate_log_entry(index, log_block):
     return f"Log Entry {index}: {log}"
 
 def retrieve_logs(document_url):
-    response = requests.get(document_url)
-    content = response.text
-    log_blocks = content.split("\n\n")
-    logs = [generate_log_entry(i, block) for i, block in enumerate(log_blocks)]
-
-    return logs
-
-
-
+    try:
+        error = None
+        response = requests.get(document_url)
+        if response.status_code != 200:
+            error = f"Got status {response.status_code} in request to {document_url}."
+            logger.error(error)
+            return [], error
+        content = response.text
+        log_blocks = content.split("\n\n")
+        logs = [generate_log_entry(i, block) for i, block in enumerate(log_blocks)]
+        return logs, error
+    except requests.exceptions.RequestException as e:
+        error = f"Request to {document_url} failed"
+        return [], error
+    
 def get_fact_extraction_chain():
     fact_extraction_prompt = PromptTemplate.from_template(fact_extraction_template)
     extract_facts_chain = (
         {
                 "question": lambda x: x["question"],
                 "current_facts": lambda x: x["current_facts"],
-                "logs": lambda x: retrieve_logs(x["document_url"]),
+                "logs": lambda x: x["logs"],
         }
         | fact_extraction_prompt
         | ChatOpenAI(temperature=0, model_name="gpt-4-1106-preview")
@@ -94,13 +100,18 @@ def get_fact_extraction_chain():
 async def get_facts(question, document_urls):
     current_facts = []
     logger.info(document_urls)
+    errors = []
     for i, document_url in enumerate(document_urls):
+        logs, error = retrieve_logs(document_url)
+        if error is not None:
+            errors.append(error)
+            continue
         fact_extraction_chain = get_fact_extraction_chain()
-        inputs = { "question": question, "document_url": document_url, "current_facts": current_facts }
+        inputs = { "question": question, "logs": logs, "current_facts": current_facts }
         extraction_results = await fact_extraction_chain.ainvoke(inputs)
         current_facts = extraction_results.content.split("\n")
         logger.info(f"Document Number: {i}")
         logger.info(f"Inputs: {inputs}")
         logger.info(f"Updated Facts: {current_facts}")
         logger.info("-" * 80)
-    return {"question": question, "facts": current_facts}
+    return {"question": question, "facts": current_facts, "errors": errors}
