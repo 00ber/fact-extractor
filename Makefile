@@ -4,10 +4,8 @@ build-backend: # Build backend services
 
 .PHONY: build-frontend
 build-frontend: # Build frontend services
-	# docker build -f ./frontend/Dockerfile -t llm-log-parser-frontend ./frontend
-	echo "Building frontend"
+	docker build -f ./frontend/Dockerfile -t llm-log-parser-frontend ./frontend
 
 .PHONY: up-dev # Run all services
 up-dev: build-backend build-frontend
-	echo "Done"
-	# docker-compose up -d 
+	docker-compose up

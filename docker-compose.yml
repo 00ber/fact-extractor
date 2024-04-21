@@ -28,19 +28,19 @@ services:
       driver: "json-file"
       options:
         max-size: "10m"
-  # llm-log-parser-frontend:
-  #   image: llm-log-parser-frontend:latest
-  #   command: node ./node_modules/astro/astro.js dev --host=0.0.0.0
-  #   ports:
-  #     - "4321:4321"
-  #   volumes:
-  #     - ./frontend/src:/app/src
-  #   networks:
-  #     - llm-log-parser
-  #   logging:
-  #     driver: "json-file"
-  #     options:
-  #       max-size: "10m"
+  llm-log-parser-frontend:
+    image: llm-log-parser-frontend:latest
+    command: ng serve --host 0.0.0.0 --configuration development
+    ports:
+      - "4200:4200"
+    volumes:
+      - ./frontend/src:/app/src
+    networks:
+      - llm-log-parser
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
 
 networks:
   llm-log-parser:

@@ -6,9 +6,7 @@ COPY package.json ./
 
 COPY package-lock.json ./
 
-RUN npm update && npm ci
-
-RUN npm install -g @angular/cli
+RUN npm update && npm install -g @angular/cli && npm ci
 
 COPY . .
 

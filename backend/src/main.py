@@ -1,34 +1,34 @@
 from typing import List
 import asyncio
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uuid
-from chain import get_facts
-import logging
+# from chain_v1 import get_facts
+from chain_v2 import get_facts
+from logger import logger
+from jobs import jobs
 
-logger = logging.getLogger("uvicorn")
-logger.setLevel(logging.DEBUG)
-
-jobs = {}
 
 class RequestPayload(BaseModel):
     question: str
     documents: List[str]
 
 app = FastAPI()
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 async def process_request(job_identifier, payload: RequestPayload):
     job_info = jobs[job_identifier]
-    job_info["response_payload"] = {
-        "question": payload.question,
-        "facts": None,
-        "status": "processing"
-    }
-   
     results = await get_facts(payload.question, payload.documents)
-    job_info["response_payload"]["facts"] = results["facts"]
-    job_info["response_payload"]['status'] = 'done'
+    job_info["facts"] = results["facts"]
+    job_info['status'] = 'done'
+    return
 
 @app.get('/status')
 def status():
@@ -43,22 +43,50 @@ async def status(identifier):
     }
 
 @app.post("/submit_question_and_documents")
-async def submit_question_and_documents(payload: RequestPayload):
+async def submit_question_and_documents_static(payload: RequestPayload):
     global jobs
     request_id = "44fefa65-8c54-4d37-92ef-314bfc977776"
     # request_id = str(uuid.uuid4())
     logger.info(request_id)
-    jobs[request_id] = {}
+    jobs[request_id] = {
+        "question": payload.question,
+        "facts": None,
+        "status": "processing"
+    }
+
     asyncio.run_coroutine_threadsafe(process_request(request_id, payload), loop=asyncio.get_running_loop())
 
     return {"request_id": request_id}
 
 @app.get("/get_question_and_facts")
-async def get_question_and_facts():
+async def get_question_and_facts_static():
     request_id = "44fefa65-8c54-4d37-92ef-314bfc977776"
-    job_info = jobs[request_id]
+    logger.info(jobs[request_id]["status"])
+    return jobs[request_id]
 
-    return job_info["response_payload"]
+
+@app.post("/submit_question_and_documents")
+async def submit_question_and_documents_dynamic(payload: RequestPayload):
+    global jobs
+    request_id = str(uuid.uuid4())
+    logger.info(request_id)
+    jobs[request_id] = {
+        "question": payload.question,
+        "facts": None,
+        "status": "processing"
+    }
+
+    asyncio.run_coroutine_threadsafe(process_request(request_id, payload), loop=asyncio.get_running_loop())
+
+    return {"request_id": request_id}
+
+@app.get("/get_question_and_facts/:id")
+async def get_question_and_facts_by_id(request_id):
+    global jobs
+    logger.info("###########################")
+    logger.info(request_id)
+    logger.info(jobs[request_id]["status"])
+    return jobs[request_id]
 
 
 @app.get("/test")
