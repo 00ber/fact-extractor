@@ -19,11 +19,15 @@ Identify and extract any new and relevant information that directly addresses th
 Remember that the logs are ordered. So, the logs that come later are more recent.
 Focus on extracting clear and concise facts that are pertinent to the question. 
 The extracte facts must sound like facts, rather than answer to the question directly.
+There must not be any unnecessary facts.
+The list of extracted facts must not have double facts (two facts per line).
 
 Step 2. Fact Integration:
 Add New Facts: Evaluate the extracted facts and add them to the list of current facts if they provide new insights or additional details not previously covered.
 Modify Existing Facts: If any new information contradicts or updates an existing fact, modify the existing entry to reflect the most accurate and up-to-date information.
 Confirm Existing Facts: Where new data supports (confirms) existing facts without adding new information, do not change the existing facts.
+There must not be any unnecessary facts in the updated facts.
+The list of updated facts must not have double facts (two facts per line).
 
 Step 3. Output:
 Your output must STRICTLY be the list of updated facts only, without any prefix or additional context. Each fact must be separated by a newline.
@@ -103,9 +107,13 @@ def get_fact_extraction_chain():
     return extract_facts_chain
 
 async def get_facts(question, document_urls):
-    # To minimize the effects of the Lost in the Middle problem
-    # and to pass almost consistent sized logs to the LLM,
-    # we further chunk each document into chunks of equal size (chunk_size)
+    """
+    Iteratively updates facts in light of new information from documents.
+
+    To minimize the effects of the Lost in the Middle problem
+    and to pass almost consistent sized logs to the LLM,
+    we further chunk each document into chunks of equal size (chunk_size)
+    """
     chunk_size = 100
 
     current_facts = []
