@@ -62,6 +62,11 @@ NEW LOGS:
 UPDATED FACTS:
 """
 
+def chunk(target_list, chunk_size):
+    """Yield chunk_size chunks from the target list"""
+    for i in range(0, len(target_list), chunk_size):
+        yield target_list[i:i + chunk_size]
+
 def generate_log_entry(index, log_block):
     log_lines = log_block.split("\n")[:3]
     log = log_lines[-1]
@@ -98,20 +103,28 @@ def get_fact_extraction_chain():
     return extract_facts_chain
 
 async def get_facts(question, document_urls):
+    # To minimize the effects of the Lost in the Middle problem
+    # and to pass almost consistent sized logs to the LLM,
+    # we further chunk each document into chunks of equal size (chunk_size)
+    chunk_size = 100
+
     current_facts = []
     logger.info(document_urls)
     errors = []
-    for i, document_url in enumerate(document_urls):
+    for document_number, document_url in enumerate(document_urls):
         logs, error = retrieve_logs(document_url)
         if error is not None:
             errors.append(error)
             continue
-        fact_extraction_chain = get_fact_extraction_chain()
-        inputs = { "question": question, "logs": logs, "current_facts": current_facts }
-        extraction_results = await fact_extraction_chain.ainvoke(inputs)
-        current_facts = extraction_results.content.split("\n")
-        logger.info(f"Document Number: {i}")
-        logger.info(f"Inputs: {inputs}")
-        logger.info(f"Updated Facts: {current_facts}")
-        logger.info("-" * 80)
+
+        for chunk_number, log_chunk in enumerate(chunk(logs, chunk_size)):
+            fact_extraction_chain = get_fact_extraction_chain()
+            inputs = { "question": question, "logs": log_chunk, "current_facts": current_facts }
+            extraction_results = await fact_extraction_chain.ainvoke(inputs)
+            current_facts = extraction_results.content.split("\n")
+            logger.info(f"Document Number: {document_number}")
+            logger.info(f"Chunk Number: {chunk_number}")
+            logger.info(f"Inputs: {inputs}")
+            logger.info(f"Updated Facts: {current_facts}")
+            logger.info("-" * 80)
     return {"question": question, "facts": current_facts, "errors": errors}
