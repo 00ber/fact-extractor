@@ -1,5 +1,5 @@
 export const environment = {
     production: true,
-    apiUrl: 'http://llm-facts-extractor.00ber.dev',
-    exampleServerUrl: 'http://llm-facts-extractor.00ber.dev/examples'
+    apiUrl: 'https://fact-extractor.00ber.dev',
+    exampleServerUrl: 'https://fact-extractor.00ber.dev/examples'
 };

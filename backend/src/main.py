@@ -61,6 +61,8 @@ async def submit_question_and_documents_static(payload: RequestPayload):
 @app.get("/get_question_and_facts")
 async def get_question_and_facts_static():
     request_id = "44fefa65-8c54-4d37-92ef-314bfc977776"
+    if request_id not in jobs:
+        raise HTTPException(status_code=404, detail=f"Job for request {request_id} not found")
     logger.info(jobs[request_id]["status"])
     return jobs[request_id]
 
