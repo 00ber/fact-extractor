@@ -1,7 +1,7 @@
 # AI-based Fact Extractor
 A web application that processes and extracts facts from a set of call logs using an LLM.
 
-Live demo available at [https://fact-extractor.00ber.dev/](https://fact-extractor.00ber.dev/)
+Live demo available at [https://fact-extractor.00ber.dev](https://fact-extractor.00ber.dev)
 
 ## Approach:
 
