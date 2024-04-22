@@ -18,7 +18,7 @@ Review each log entry carefully.
 Identify and extract any new and relevant information that directly addresses the question posed. 
 Remember that the logs are ordered. So, the logs that come later are more recent.
 Focus on extracting clear and concise facts that are pertinent to the question. 
-The extracte facts must sound like facts, rather than answer to the question directly.
+The extracted facts must sound like facts, rather than answer to the question directly.
 There must not be any unnecessary facts.
 The list of extracted facts must not have double facts (two facts per line).
 
