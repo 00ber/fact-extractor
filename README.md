@@ -127,6 +127,8 @@ $ docker build -f ./frontend/Dockerfile -t fact-extractor-frontend ./frontend
 $ docker compose up
 ```
 
+After the services are up and running, go to [http://localhost:4200/](http://localhost:4200/) in your browser.
+
 Docker services:
 - **fact-extractor-backend**: FastAPI backend
 - **fact-extractor-frontend**: Angular frontend
