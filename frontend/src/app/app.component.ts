@@ -5,7 +5,7 @@ import { initFlowbite } from 'flowbite';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
-import { faEnvelope } from '@ng-icons/font-awesome/regular'
+import { faEnvelope, faAddressCard } from '@ng-icons/font-awesome/regular'
 import { faBrandGithub, faBrandLinkedin } from '@ng-icons/font-awesome/brands'
 
 import { ApiService } from './api.service';
@@ -19,7 +19,7 @@ interface URLField {
 @Component({
   selector: 'app-root',
   standalone: true,
-  providers: [ApiService, provideIcons({ faBrandGithub, faBrandLinkedin, faEnvelope })],
+  providers: [ApiService, provideIcons({ faBrandGithub, faBrandLinkedin, faEnvelope, faAddressCard })],
   imports: [
     RouterOutlet, 
     CommonModule, 
