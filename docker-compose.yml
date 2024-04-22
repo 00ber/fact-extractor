@@ -8,13 +8,13 @@ services:
       - ./test-fileserver/data:/srv
       - ./test-fileserver/nginx.conf:/etc/nginx/conf.d/default.conf
     networks:
-      - llm-log-parser
+      - fact-extractor
     logging:
       driver: "json-file"
       options:
         max-size: "10m"
-  llm-log-parser-backend:
-    image: llm-log-parser-backend:latest
+  fact-extractor-backend:
+    image: fact-extractor-backend:latest
     command: uvicorn main:app --host 0.0.0.0 --port 8080 --reload
     ports:
       - "8080:8080"
@@ -23,24 +23,24 @@ services:
     volumes:
       - ./backend/src:/app
     networks:
-      - llm-log-parser
+      - fact-extractor
     logging:
       driver: "json-file"
       options:
         max-size: "10m"
-  llm-log-parser-frontend:
-    image: llm-log-parser-frontend:latest
+  fact-extractor-frontend:
+    image: fact-extractor-frontend:latest
     command: npm run start:dev
     ports:
       - "4200:4200"
     volumes:
       - ./frontend/src:/app/src
     networks:
-      - llm-log-parser
+      - fact-extractor
     logging:
       driver: "json-file"
       options:
         max-size: "10m"
 
 networks:
-  llm-log-parser:
+  fact-extractor:
